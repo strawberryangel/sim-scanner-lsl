@@ -1,5 +1,6 @@
+#include "sim-scanner-lsl/main.h"
+
 integer SLICE_SIZE = 20;
-string BUNDLE_DELIMITER = "|";
 
 scan()
 {
@@ -7,6 +8,8 @@ scan()
 	integer count = llGetListLength(agents);
 	integer start = 0;
 	integer stop;
+
+	llOwnerSay("Number of Avatars: " + (string)count);
 
 	while(start < count)
 	{
@@ -16,6 +19,8 @@ scan()
 		list slice = llList2List(agents, start, stop);
 		string bundle = llDumpList2String(slice, BUNDLE_DELIMITER);
 		llOwnerSay(bundle);
+
+		llMessageLinked(LINK_SET, LM_TRANSMITTER, bundle, NULL_KEY);
 
 		start = stop + 1;
 	}
