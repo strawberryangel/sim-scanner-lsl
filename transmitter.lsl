@@ -38,7 +38,9 @@ default
 {
 	http_response(key request_id, integer status, list metadata, string body)
 	{
-		llOwnerSay("Status: " + (string)status);
+		#ifdef DEBUG
+			llOwnerSay("Status: " + (string)status);
+		#endif
 	}
 	link_message(integer sender_number, integer number, string message, key id)
 	{

@@ -9,7 +9,9 @@ scan()
 	integer start = 0;
 	integer stop;
 
-	llOwnerSay("Number of Avatars: " + (string)count);
+	#ifdef DEBUG
+		llOwnerSay("Number of Avatars: " + (string)count);
+	#endif
 
 	while(start < count)
 	{
@@ -18,7 +20,10 @@ scan()
 
 		list slice = llList2List(agents, start, stop);
 		string bundle = llDumpList2String(slice, BUNDLE_DELIMITER);
-		llOwnerSay(bundle);
+
+		#ifdef DEBUG
+			llOwnerSay(bundle);
+		#endif
 
 		llMessageLinked(LINK_SET, LM_TRANSMITTER, bundle, NULL_KEY);
 
