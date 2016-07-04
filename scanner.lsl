@@ -1,6 +1,7 @@
 #include "sim-scanner-lsl/main.h"
 
 integer SLICE_SIZE = 20;
+float TIMER_INTERVAL  = 10.0;
 
 scan()
 {
@@ -13,26 +14,34 @@ scan()
 		llOwnerSay("Number of Avatars: " + (string)count);
 	#endif
 
-	while(start < count)
-	{
-		stop = start + SLICE_SIZE - 1;
-		if(stop >= count) stop = count-1;
+		while(start < count)
+		{
+			stop = start + SLICE_SIZE - 1;
+			if(stop >= count) stop = count-1;
 
-		list slice = llList2List(agents, start, stop);
-		string bundle = llDumpList2String(slice, BUNDLE_DELIMITER);
+			list slice = llList2List(agents, start, stop);
+			string bundle = llDumpList2String(slice, BUNDLE_DELIMITER);
 
-		#ifdef DEBUG
-			llOwnerSay(bundle);
-		#endif
+			#ifdef DEBUG
+				llOwnerSay(bundle);
+			#endif
 
-		llMessageLinked(LINK_SET, LM_TRANSMITTER, bundle, NULL_KEY);
+				llMessageLinked(LINK_SET, LM_TRANSMITTER, bundle, NULL_KEY);
 
-		start = stop + 1;
-	}
+			start = stop + 1;
+		}
 }
 
 default
 {
+	state_entry()
+	{
+		llSetTimerEvent(TIMER_INTERVAL);
+	}
+	timer()
+	{
+		scan();
+	}
 	touch_end(integer total_number)
 	{
 		scan();
