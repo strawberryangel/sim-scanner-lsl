@@ -12,5 +12,5 @@ The code for the transmitter script in the prim is:
 
 ```
 #include "sim-scanner-lsl/transmitter.lsl"
-``
+```
 
