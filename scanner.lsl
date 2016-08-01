@@ -1,7 +1,6 @@
 #include "sim-scanner-lsl/main.h"
 
 integer SLICE_SIZE = 20;
-float TIMER_INTERVAL  = 10.0;
 
 scan()
 {
