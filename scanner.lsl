@@ -1,7 +1,5 @@
 #include "sim-scanner-lsl/main.h"
 
-integer SLICE_SIZE = 20;
-
 scan()
 {
 	list agents = llGetAgentList(AGENT_LIST_PARCEL_OWNER, []);
