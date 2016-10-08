@@ -1,4 +1,7 @@
 #include "sim-scanner-lsl/main.h"
+	#include "lib/debug.lsl"
+
+		string VERSION = "1.3.0";
 
 scan()
 {
@@ -7,32 +10,33 @@ scan()
 	integer start = 0;
 	integer stop;
 
-	#ifdef DEBUG
-		llOwnerSay("Number of Avatars: " + (string)count);
-	#endif
+	debug("Number of Avatars: " + (string)count);
 
-		while(start < count)
-		{
-			stop = start + SLICE_SIZE - 1;
-			if(stop >= count) stop = count-1;
+	while(start < count)
+	{
+		stop = start + SLICE_SIZE - 1;
+		if(stop >= count) stop = count-1;
 
-			list slice = llList2List(agents, start, stop);
-			string bundle = llDumpList2String(slice, BUNDLE_DELIMITER);
+		list slice = llList2List(agents, start, stop);
+		string bundle = llDumpList2String(slice, BUNDLE_DELIMITER);
 
-			#ifdef DEBUG
-				llOwnerSay(bundle);
-			#endif
+		#ifdef DEBUG
+			llOwnerSay(bundle);
+		#endif
 
-				llMessageLinked(LINK_SET, LM_TRANSMITTER, bundle, NULL_KEY);
+			llMessageLinked(LINK_SET, LM_TRANSMITTER, bundle, NULL_KEY);
 
-			start = stop + 1;
-		}
+		start = stop + 1;
+	}
 }
 
 default
 {
 	state_entry()
 	{
+		debug_prefix = "scanner";
+		DEBUG = FALSE; // DEBUG_STYLE_LOCAL;
+		
 		llSetTimerEvent(TIMER_INTERVAL);
 	}
 	timer()
