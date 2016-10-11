@@ -1,7 +1,7 @@
 #include "sim-scanner-lsl/main.h"
 	#include "lib/debug.lsl"
 
-		string VERSION = "1.3.0";
+		string VERSION = "1.3.1";
 
 scan()
 {
@@ -20,11 +20,9 @@ scan()
 		list slice = llList2List(agents, start, stop);
 		string bundle = llDumpList2String(slice, BUNDLE_DELIMITER);
 
-		#ifdef DEBUG
-			llOwnerSay(bundle);
-		#endif
+		debug(bundle);
 
-			llMessageLinked(LINK_SET, LM_TRANSMITTER, bundle, NULL_KEY);
+		llMessageLinked(LINK_SET, LM_TRANSMITTER, bundle, NULL_KEY);
 
 		start = stop + 1;
 	}
@@ -36,7 +34,7 @@ default
 	{
 		debug_prefix = "scanner";
 		DEBUG = FALSE; // DEBUG_STYLE_LOCAL;
-		
+
 		llSetTimerEvent(TIMER_INTERVAL);
 	}
 	timer()
