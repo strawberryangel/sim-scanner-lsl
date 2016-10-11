@@ -1,7 +1,7 @@
 #include "sim-scanner-lsl/main.h"
 	#include "lib/debug.lsl"
 
-		string VERSION = "1.3.1";
+		string VERSION = "1.3.2";
 
 integer DEVELOPMENT = TRUE;
 
@@ -23,6 +23,26 @@ string getPosition(key agent)
 	return llGetSubString(result, 1, -2);
 }
 
+string EVIL_NAME = "Progeny";
+string detectProgeny(key avatar)
+{
+	list AttachedUUIDs = llGetAttachedList(avatar);
+
+	integer count = llGetListLength(AttachedUUIDs);
+	integer i = count;
+	while (i-- > 0)
+	{
+		key uuid = llList2Key(AttachedUUIDs,i);
+		list temp = llGetObjectDetails(uuid, [OBJECT_NAME]);
+		string name = llList2String(temp,0);
+
+		if(llSubStringIndex(name, EVIL_NAME) >= 0)
+			return "1";
+	}
+
+	return "";
+}
+
 string createBody(string message)
 {
 	list avatars = llParseStringKeepNulls(message, [BUNDLE_DELIMITER], []);
@@ -35,8 +55,11 @@ string createBody(string message)
 		string username = llGetUsername(avatar);
 		string display = llGetDisplayName(avatar);
 		string position = getPosition(avatar);
+		string progeny = detectProgeny(avatar);
 
-		string pair = (string)avatar + "=" + llEscapeURL(username + BUNDLE_DELIMITER + display + BUNDLE_DELIMITER + position);
+		list bundle = [username, display, position, progeny];
+
+		string pair = (string)avatar + "=" + llEscapeURL(llDumpList2String(bundle, BUNDLE_DELIMITER));
 		bodyValues += pair;
 	}
 
@@ -57,7 +80,7 @@ default
 	{
 		debug_prefix = "xmtr";
 		DEBUG = FALSE; // DEBUG_STYLE_LOCAL;
-		
+
 		if(DEVELOPMENT)
 			URL = DEVELOPMENT_URL;
 		else
