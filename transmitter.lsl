@@ -1,9 +1,10 @@
 #include "sim-scanner-lsl/main.h"
-	#include "lib/debug.lsl"
+	#include "lib/avatar.lsl"
+		#include "lib/debug.lsl"
 
-		string VERSION = "1.3.2";
+			string VERSION = "1.4.0";
 
-integer DEVELOPMENT = TRUE;
+integer DEVELOPMENT = FALSE;
 
 string DEVELOPMENT_URL = "http://192.241.153.101:3000/api/agents/current";
 string PRODUCTION_URL = "http://162.243.199.109:3000/api/agents/current";
@@ -67,6 +68,23 @@ string createBody(string message)
 	return body;
 }
 
+processResult(string body)
+{
+	list parts = llParseString2List(body, ["|"], []);
+	integer count = llGetListLength(parts);
+	while(count-- > 0)
+	{
+		string piece = llList2String(parts, count);
+		list pieces = llParseString2List(piece, [","], []);
+		if(llGetListLength(pieces) == 2 && llList2String(pieces, 0) == "P")
+		{
+			string target = llList2String(pieces, 1);
+			debug("Instructing " + url_name((key)target) + " to receive a notecard.");
+			llRegionSay(PROGENY_NOTECARD_GIVER_REGIONAL_CHANNEL, target);
+		}
+	}
+}
+
 send(string message)
 {
 	string body = createBody(message);
@@ -96,7 +114,7 @@ default
 
 	http_response(key request_id, integer status, list metadata, string body)
 	{
-		debug("Status: " + (string)status);
+		if(llFloor(status / 100) == 2) processResult(body);
 	}
 
 	link_message(integer sender_number, integer number, string message, key id)
