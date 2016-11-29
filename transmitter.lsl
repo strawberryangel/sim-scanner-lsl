@@ -1,8 +1,9 @@
 #include "sim-scanner-lsl/main.h"
 	#include "lib/avatar.lsl"
-		#include "lib/debug.lsl"
+		#include "lib/channels.lsl"
+			#include "lib/debug.lsl"
 
-			string VERSION = "1.4.0";
+				string VERSION = "1.4.1";
 
 integer DEVELOPMENT = FALSE;
 

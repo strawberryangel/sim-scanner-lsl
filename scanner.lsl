@@ -1,7 +1,8 @@
 #include "sim-scanner-lsl/main.h"
-	#include "lib/debug.lsl"
+	#include "lib/channels.lsl"
+		#include "lib/debug.lsl"
 
-		string VERSION = "1.3.1";
+			string VERSION = "1.3.2";
 
 scan()
 {
