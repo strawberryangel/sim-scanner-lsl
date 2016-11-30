@@ -1,8 +1,9 @@
-#include "sim-scanner-lsl/main.h"
-	#include "lib/channels.lsl"
-		#include "lib/debug.lsl"
+#include "sim-scanner-lsl/lib.lsl"
+	#include "sim-scanner-lsl/main.h"
+		#include "lib/channels.lsl"
+			#include "lib/debug.lsl"
 
-			string VERSION = "1.3.2";
+				string VERSION = "1.4.0";
 
 scan()
 {
@@ -31,6 +32,14 @@ scan()
 
 default
 {
+	link_message(integer sender_number, integer number, string message, key id)
+	{
+		if(number == LINK_COMMAND_REPORT_VERSION && message == "")
+		{
+			llMessageLinked(LINK_SET, LINK_COMMAND_REPORT_VERSION, SCRIPT_SCANNER + "|" + VERSION, NULL_KEY);
+			return;
+		}
+	}
 	state_entry()
 	{
 		debug_prefix = "scanner";
@@ -39,10 +48,6 @@ default
 		llSetTimerEvent(TIMER_INTERVAL);
 	}
 	timer()
-	{
-		scan();
-	}
-	touch_end(integer total_number)
 	{
 		scan();
 	}

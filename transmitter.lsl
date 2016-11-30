@@ -1,9 +1,10 @@
-#include "sim-scanner-lsl/main.h"
-	#include "lib/avatar.lsl"
-		#include "lib/channels.lsl"
-			#include "lib/debug.lsl"
+#include "sim-scanner-lsl/lib.lsl"
+	#include "sim-scanner-lsl/main.h"
+		#include "lib/avatar.lsl"
+			#include "lib/channels.lsl"
+				#include "lib/debug.lsl"
 
-				string VERSION = "1.4.1";
+					string VERSION = "1.5.0";
 
 integer DEVELOPMENT = FALSE;
 
@@ -92,6 +93,14 @@ send(string message)
 	llHTTPRequest(URL, HTTP_PARAMS, body);
 }
 
+configure()
+{
+	if(DEVELOPMENT)
+		URL = DEVELOPMENT_URL;
+	else
+		URL = PRODUCTION_URL;
+}
+
 
 default
 {
@@ -100,10 +109,7 @@ default
 		debug_prefix = "xmtr";
 		DEBUG = FALSE; // DEBUG_STYLE_LOCAL;
 
-		if(DEVELOPMENT)
-			URL = DEVELOPMENT_URL;
-		else
-			URL = PRODUCTION_URL;
+		configure();
 
 		HTTP_PARAMS = [
 			HTTP_METHOD, "POST",
@@ -121,6 +127,17 @@ default
 	link_message(integer sender_number, integer number, string message, key id)
 	{
 		if(number == LM_TRANSMITTER) send(message);
-
+		if(number == LINK_COMMAND_REPORT_VERSION && message == "")
+		{
+			llMessageLinked(LINK_SET, LINK_COMMAND_REPORT_VERSION, SCRIPT_TRANSMITTER + "|" + VERSION, NULL_KEY);
+			llMessageLinked(LINK_SET, LINK_COMMAND_REPORT_VERSION, SCRIPT_TRANSMITTER + "|" + URL, NULL_KEY);
+			return;
+		}
+		if(number == LINK_COMMAND_CONFIGURE_SERVER)
+		{
+			if(message == CONFIG_DEVELOPMENT) DEVELOPMENT = TRUE;
+			if(message == CONFIG_PRODUCTION) DEVELOPMENT = FALSE;
+			configure();
+		}
 	}
 }
