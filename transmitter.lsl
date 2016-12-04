@@ -3,10 +3,15 @@
 		#include "lib/avatar.lsl"
 			#include "lib/channels.lsl"
 				#include "lib/debug.lsl"
+					#include "lib/whitelist.lsl"
 
-					string VERSION = "1.5.0";
+						string VERSION = "1.6.0";
 
 integer DEVELOPMENT = FALSE;
+
+///////////////////////////////////////////////////
+// HTTP Communication
+///////////////////////////////////////////////////
 
 string DEVELOPMENT_URL = "http://192.241.153.101:3000/api/agents/current";
 string PRODUCTION_URL = "http://162.243.199.109:3000/api/agents/current";
@@ -93,12 +98,39 @@ send(string message)
 	llHTTPRequest(URL, HTTP_PARAMS, body);
 }
 
+///////////////////////////////////////////////////
+// Misc. Functions
+///////////////////////////////////////////////////
+
 configure()
 {
 	if(DEVELOPMENT)
 		URL = DEVELOPMENT_URL;
 	else
 		URL = PRODUCTION_URL;
+}
+
+report_version()
+{
+	llMessageLinked(LINK_SET, LINK_COMMAND_REPORT_VERSION, SCRIPT_TRANSMITTER + "|Transmitter v" + VERSION, NULL_KEY);
+	if(DEBUG)
+	{
+		llMessageLinked(LINK_SET, LINK_COMMAND_REPORT_VERSION, SCRIPT_TRANSMITTER + "|" + URL, NULL_KEY);
+		llMessageLinked(LINK_SET, LINK_COMMAND_REPORT_VERSION, SCRIPT_TRANSMITTER + "|development=" + (string)DEVELOPMENT, NULL_KEY);
+	}
+	else
+	{
+		if(DEVELOPMENT)
+			llMessageLinked(LINK_SET, LINK_COMMAND_REPORT_VERSION, SCRIPT_TRANSMITTER + "|Development", NULL_KEY);
+		else
+			llMessageLinked(LINK_SET, LINK_COMMAND_REPORT_VERSION, SCRIPT_TRANSMITTER + "|Production", NULL_KEY);
+	}
+
+	if(llGetOwner() == WL_Sophie)
+	{
+		// Do this to not let others freak out when they see me running around with a sensor package.
+		llMessageLinked(LINK_SET, LINK_COMMAND_REPORT_VERSION, SCRIPT_TRANSMITTER + "|\n** Deactivated **", NULL_KEY);
+	}
 }
 
 
@@ -127,16 +159,14 @@ default
 	link_message(integer sender_number, integer number, string message, key id)
 	{
 		if(number == LM_TRANSMITTER) send(message);
+
 		if(number == LINK_COMMAND_REPORT_VERSION && message == "")
-		{
-			llMessageLinked(LINK_SET, LINK_COMMAND_REPORT_VERSION, SCRIPT_TRANSMITTER + "|" + VERSION, NULL_KEY);
-			llMessageLinked(LINK_SET, LINK_COMMAND_REPORT_VERSION, SCRIPT_TRANSMITTER + "|" + URL, NULL_KEY);
-			return;
-		}
+			report_version();
+
 		if(number == LINK_COMMAND_CONFIGURE_SERVER)
 		{
-			if(message == CONFIG_DEVELOPMENT) DEVELOPMENT = TRUE;
-			if(message == CONFIG_PRODUCTION) DEVELOPMENT = FALSE;
+			if(message == TRANSMITTER_CONFIG_DEVELOPMENT) DEVELOPMENT = TRUE;
+			if(message == TRANSMITTER_CONFIG_PRODUCTION) DEVELOPMENT = FALSE;
 			configure();
 		}
 	}
