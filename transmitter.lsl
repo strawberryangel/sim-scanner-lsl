@@ -3,18 +3,16 @@
 		#include "lib/avatar.lsl"
 			#include "lib/channels.lsl"
 				#include "lib/debug.lsl"
-					#include "lib/whitelist.lsl"
+					#include "lib/http.lsl"
+						#include "lib/whitelist.lsl"
 
-						string VERSION = "1.6.0";
+							string VERSION = "1.6.1";
 
 integer DEVELOPMENT = FALSE;
 
 ///////////////////////////////////////////////////
 // HTTP Communication
 ///////////////////////////////////////////////////
-
-string DEVELOPMENT_URL = "http://192.241.153.101:3000/api/agents/current";
-string PRODUCTION_URL = "http://162.243.199.109:3000/api/agents/current";
 
 string URL;
 list HTTP_PARAMS; // Defined in state_entry() because can't typecast outside of a function.
@@ -104,33 +102,38 @@ send(string message)
 
 configure()
 {
+	string ip;
+
 	if(DEVELOPMENT)
-		URL = DEVELOPMENT_URL;
+		ip = ADDRESS_DEVELOPMENT_SERVER;
 	else
-		URL = PRODUCTION_URL;
+		ip = ADDRESS_PRODUCTION_SERVER;
+
+	URL = "http:// "+ ip + ":" + PORT_AVATAR_SENSOR_LISTENER + "/api/agents/current";
 }
 
 report_version()
 {
-	llMessageLinked(LINK_SET, LINK_COMMAND_REPORT_VERSION, SCRIPT_TRANSMITTER + "|Transmitter v" + VERSION, NULL_KEY);
+	send_report_version_message("Transmitter v" + VERSION);
 	if(DEBUG)
-	{
-		llMessageLinked(LINK_SET, LINK_COMMAND_REPORT_VERSION, SCRIPT_TRANSMITTER + "|" + URL, NULL_KEY);
-		llMessageLinked(LINK_SET, LINK_COMMAND_REPORT_VERSION, SCRIPT_TRANSMITTER + "|development=" + (string)DEVELOPMENT, NULL_KEY);
-	}
+		send_report_version_message(URL);
+
+	if(DEVELOPMENT)
+		send_report_version_message("Development");
 	else
-	{
-		if(DEVELOPMENT)
-			llMessageLinked(LINK_SET, LINK_COMMAND_REPORT_VERSION, SCRIPT_TRANSMITTER + "|Development", NULL_KEY);
-		else
-			llMessageLinked(LINK_SET, LINK_COMMAND_REPORT_VERSION, SCRIPT_TRANSMITTER + "|Production", NULL_KEY);
-	}
+		send_report_version_message("Production");
+
 
 	if(llGetOwner() == WL_Sophie)
 	{
 		// Do this to not let others freak out when they see me running around with a sensor package.
-		llMessageLinked(LINK_SET, LINK_COMMAND_REPORT_VERSION, SCRIPT_TRANSMITTER + "|\n** Deactivated **", NULL_KEY);
+		send_report_version_message("** Deactivated **");
 	}
+}
+
+send_report_version_message(string message)
+{
+	llMessageLinked(LINK_SET, LINK_COMMAND_REPORT_VERSION, SCRIPT_TRANSMITTER + "|" + message, NULL_KEY);
 }
 
 

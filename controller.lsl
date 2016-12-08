@@ -5,8 +5,9 @@
 				#include "lib/whitelist.lsl"
 					#include "sim-scanner-lsl/lib.lsl"
 
-						string VERSION = "1.1.0";
-string PACKAGE_VERSION = "1.5.0";
+					string VERSION = "1.1.0";
+				
+string PACKAGE_VERSION = "1.5.1";
 
 key owner_key;
 
