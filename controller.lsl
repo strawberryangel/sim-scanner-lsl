@@ -209,7 +209,7 @@ set_owner()
 	owner_key = llGetOwner();
 
 	// See documentation on llFRand http://wiki.secondlife.com/wiki/LlFrand
-	configure_channel = -1 * (integer)llFrand(500)*1000000 + (integer)llFrand(1000000);
+	configure_channel = -1 * ((integer)llFrand(500)*1000000 + (integer)llFrand(1000000));
 
 	llListenRemove(channel);
 	channel = llListen(configure_channel, "", NULL_KEY, "");
