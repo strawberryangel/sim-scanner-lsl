@@ -1,9 +1,9 @@
 #include "sim-scanner-lsl/lib.lsl"
-	#include "sim-scanner-lsl/main.h"
-		#include "lib/channels.lsl"
-			#include "lib/debug.lsl"
+#include "sim-scanner-lsl/main.h"
+#include "lib/channels.lsl"
+#include "lib/debug.lsl"
 
-				string VERSION = "1.5.0";
+string VERSION = "1.5.1";
 
 integer scope = AGENT_LIST_PARCEL_OWNER;
 

@@ -1,12 +1,12 @@
 #include "sim-scanner-lsl/lib.lsl"
-	#include "sim-scanner-lsl/main.h"
-		#include "lib/avatar.lsl"
-			#include "lib/channels.lsl"
-				#include "lib/debug.lsl"
-					#include "lib/http.lsl"
-						#include "lib/whitelist.lsl"
+#include "sim-scanner-lsl/main.h"
+#include "lib/avatar.lsl"
+#include "lib/channels.lsl"
+#include "lib/debug.lsl"
+#include "lib/http.lsl"
+#include "lib/whitelist/blackpaw-avatars.lsl"
 
-							string VERSION = "1.6.1";
+string VERSION = "1.6.2";
 
 integer DEVELOPMENT = FALSE;
 

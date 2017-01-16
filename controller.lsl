@@ -1,13 +1,13 @@
 #include "lib/avatar.lsl"
-	#include "lib/channels.lsl"
-		#include "lib/debug.lsl"
-			#include "lib/say.lsl"
-				#include "lib/whitelist.lsl"
-					#include "sim-scanner-lsl/lib.lsl"
+#include "lib/channels.lsl"
+#include "lib/debug.lsl"
+#include "lib/say.lsl"
+#include "lib/whitelist/blackpaw-avatars.lsl"
+#include "sim-scanner-lsl/lib.lsl"
 
-					string VERSION = "1.1.0";
+string VERSION = "1.1.2";
 				
-string PACKAGE_VERSION = "1.5.1";
+string PACKAGE_VERSION = "1.5.2";
 
 key owner_key;
 
