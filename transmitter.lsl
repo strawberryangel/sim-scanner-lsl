@@ -127,7 +127,7 @@ report_version()
 	if(llGetOwner() == WL_Sophie)
 	{
 		// Do this to not let others freak out when they see me running around with a sensor package.
-		send_report_version_message("** Deactivated **");
+		// send_report_version_message("** Deactivated **");
 	}
 }
 
