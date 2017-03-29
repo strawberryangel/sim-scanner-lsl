@@ -5,9 +5,9 @@
 #include "lib/whitelist/blackpaw-avatars.lsl"
 #include "sim-scanner-lsl/lib.lsl"
 
-string VERSION = "1.1.2";
+string VERSION = "1.1.3";
 				
-string PACKAGE_VERSION = "1.5.2";
+string PACKAGE_VERSION = "1.6.0";
 
 key owner_key;
 

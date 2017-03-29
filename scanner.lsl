@@ -3,7 +3,7 @@
 #include "lib/channels.lsl"
 #include "lib/debug.lsl"
 
-string VERSION = "1.5.1";
+string VERSION = "1.6.0";
 
 integer scope = AGENT_LIST_PARCEL_OWNER;
 
@@ -30,6 +30,7 @@ report_configuration()
 // This is the actual scanner.
 //
 ///////////////////////////////////////////////////
+
 scan()
 {
 	list agents = llGetAgentList(scope, []);
@@ -69,6 +70,15 @@ default
 			if(message == SCANNER_CONFIG_PARCEL) scope = AGENT_LIST_PARCEL;
 		}
 	}
+	
+	listen(integer channel, string name, key id, string message)
+	{
+		if(channel == REMOTE_TRIGGER_CHANNEL) {
+			llSetTimerEvent(0);
+			scan();
+			llSetTimerEvent(TIMER_INTERVAL);
+		}
+	}
 
 	state_entry()
 	{
@@ -76,6 +86,8 @@ default
 		DEBUG = FALSE; // DEBUG_STYLE_LOCAL;
 
 		llSetTimerEvent(TIMER_INTERVAL);
+		
+		llListen(REMOTE_TRIGGER_CHANNEL, "", NULL_KEY, "");
 	}
 
 	timer()
