@@ -3,10 +3,10 @@
 #include "lib/avatar.lsl"
 #include "lib/channels.lsl"
 #include "lib/debug.lsl"
-#include "lib/http.lsl"
+#include "lib/profiling.lsl"
 #include "lib/whitelist/blackpaw-avatars.lsl"
 
-string VERSION = "1.6.2";
+string VERSION = "2.0.0";
 
 integer DEVELOPMENT = FALSE;
 
@@ -20,17 +20,17 @@ list HTTP_PARAMS; // Defined in state_entry() because can't typecast outside of 
 string getPosition(key agent)
 {
 	list results = llGetObjectDetails(agent, [OBJECT_POS]);
-	if(llGetListLength(results) == 0) return "";
-
 	vector position = llList2Vector(results, 0);
-	if(position == ZERO_VECTOR) return "";
 
-	string result = (string)position;
-	return llGetSubString(result, 1, -2);
+	return llList2Json(JSON_OBJECT, [
+		"x", position.x,
+		"y", position.y,
+		"z", position.z
+	]);
 }
 
 string EVIL_NAME = "Progeny";
-string detectProgeny(key avatar)
+integer detectProgeny(key avatar)
 {
 	list AttachedUUIDs = llGetAttachedList(avatar);
 
@@ -43,38 +43,42 @@ string detectProgeny(key avatar)
 		string name = llList2String(temp,0);
 
 		if(llSubStringIndex(name, EVIL_NAME) >= 0)
-			return "1";
+			return 1;
 	}
 
-	return "";
+	return 0;
 }
 
-string createBody(string message)
+string to_transmit;
+string body;
+createBody()
 {
-	list avatars = llParseStringKeepNulls(message, [BUNDLE_DELIMITER], []);
+	list avatars = llParseStringKeepNulls(to_transmit, [BUNDLE_DELIMITER], []);
 	integer count = llGetListLength(avatars);
 	list bodyValues = [];
 	while(count-- > 0)
 	{
 		key avatar = llList2Key(avatars, count);
 
-		string username = llGetUsername(avatar);
-		string display = llGetDisplayName(avatar);
+		// string username = llGetUsername(avatar);
+		// string display = llGetDisplayName(avatar);
 		string position = getPosition(avatar);
-		string progeny = detectProgeny(avatar);
+		integer progeny = detectProgeny(avatar);
 
-		list bundle = [username, display, position, progeny];
-
-		string pair = (string)avatar + "=" + llEscapeURL(llDumpList2String(bundle, BUNDLE_DELIMITER));
-		bodyValues += pair;
+		bodyValues += llList2Json(JSON_OBJECT, [
+			"uuid", (string)avatar,
+			"pos", position,
+			"pv", progeny
+		]);
 	}
 
-	string body = llDumpList2String(bodyValues, "&");
-	return body;
+	body = "[" + llDumpList2String(bodyValues, ",") + "]";
+	bodyValues = []; // Force release.
 }
 
 processResult(string body)
 {
+	/*
 	list parts = llParseString2List(body, ["|"], []);
 	integer count = llGetListLength(parts);
 	while(count-- > 0)
@@ -88,11 +92,12 @@ processResult(string body)
 			llRegionSay(PROGENY_NOTECARD_GIVER_REGIONAL_CHANNEL, target);
 		}
 	}
+	*/
 }
 
-send(string message)
+send()
 {
-	string body = createBody(message);
+	createBody();
 	llHTTPRequest(URL, HTTP_PARAMS, body);
 }
 
@@ -102,21 +107,18 @@ send(string message)
 
 configure()
 {
-	string ip;
-
 	if(DEVELOPMENT)
-		ip = ADDRESS_DEVELOPMENT_SERVER;
+		URL = ADDRESS_DEVELOPMENT_SERVER;
 	else
-		ip = ADDRESS_PRODUCTION_SERVER;
-
-	URL = "http:// "+ ip + ":" + PORT_AVATAR_SENSOR_LISTENER + "/api/agents/current";
+		URL = ADDRESS_PRODUCTION_SERVER;
 }
 
 report_version()
 {
 	send_report_version_message("Transmitter v" + VERSION);
-	if(DEBUG)
+	#ifdef DEBUG
 		send_report_version_message(URL);
+	#endif
 
 	if(DEVELOPMENT)
 		send_report_version_message("Development");
@@ -142,16 +144,15 @@ default
 	state_entry()
 	{
 		debug_prefix = "xmtr";
-		DEBUG = FALSE; // DEBUG_STYLE_LOCAL;
 
 		configure();
 
 		HTTP_PARAMS = [
 			HTTP_METHOD, "POST",
-			HTTP_MIMETYPE, "application/x-www-form-urlencoded;charset=utf-8",
+			HTTP_MIMETYPE, "application/json;charset=utf-8",
 			HTTP_BODY_MAXLENGTH, 16384,
 			HTTP_CUSTOM_HEADER, INTERVAL_HEADER_NAME, (string)TIMER_INTERVAL
-				];
+		];
 	}
 
 	http_response(key request_id, integer status, list metadata, string body)
@@ -161,7 +162,13 @@ default
 
 	link_message(integer sender_number, integer number, string message, key id)
 	{
-		if(number == LM_TRANSMITTER) send(message);
+		if(number == LM_TRANSMITTER) {
+			start_profiling();
+			to_transmit = message;
+			send();
+			stop_profiling();
+			return;
+		}
 
 		if(number == LINK_COMMAND_REPORT_VERSION && message == "")
 			report_version();

@@ -5,9 +5,9 @@
 #include "lib/whitelist/blackpaw-avatars.lsl"
 #include "sim-scanner-lsl/lib.lsl"
 
-string VERSION = "1.1.3";
-				
-string PACKAGE_VERSION = "1.6.0";
+string VERSION = "1.1.4";
+
+string PACKAGE_VERSION = "2.0.0";
 
 key owner_key;
 
@@ -266,7 +266,6 @@ default
 
 	state_entry()
 	{
-		DEBUG = FALSE; // DEBUG_STYLE_OWNER;
 		set_owner();
 		greet_owner();
 
